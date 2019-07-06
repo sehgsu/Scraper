@@ -2,7 +2,7 @@ var mongoose = require("mongoose");
 
 var Schema = mongoose.Schema;
 
-var ArticlSchema = new Schema({
+var ArticleSchema = new Schema({
 
     title: {
         type: String,
@@ -12,6 +12,12 @@ var ArticlSchema = new Schema({
     link: {
         type: String,
         required: true
+    },
+    image: {
+        type: String,
+    },
+    author: { 
+        type: String,
     },
     note: {
         type: Schema.Types.ObjectId,

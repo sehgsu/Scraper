@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // making public static folder
-app.use(express.static(__dirname + "/publci"));
+app.use(express.static(__dirname + "/public"));
 
 // connects to hbs
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
@@ -55,20 +55,24 @@ app.listen(PORT, () => console.log("Listening on port: %s Visit http://localhost
 // get route scraping thrasher magazine
 app.get("/scrape", function(req, res) {
     // grab the body of html with axios
-    axios.get("https://www.thrashermagazine.com/").then(function(response) {
+    axios.get("https://www.theonion.com/").then(function(response) {
         // load cheerior and save as $ for shorthand selector
         var $ = cheerio.load(response.data);
 
         $("article h2").each(function(i, element) {
             var result = {};
 
-                // Adds the text and href of each link and saves and proporties of result object.
+                // Adds the text href, image, and authors of each link and saves and proporties of result object.
             result.title = $(this)
                 .children("a")
                 .text();
             result.link = $(this)
                 .children("a")
                 .attr("href");
+            result.image = $(this)
+            .children("a")
+            .children("img")
+            .attr("src");
         
             // Create a new Article using the 'result' object built from scraping
             db.Article.create(result).then(function(dbArticle) {
@@ -92,10 +96,10 @@ app.get("/articles", function(req, res) {
 // Route for grabbing specific Article by id and populate it with the corresponding note
 app.get("/articles/:id", function(req, res) {
     // using id passed by the id parameter prepare a query that finds the matching one in our db.
-    db.Article.findOne({ _id: req.params.id })
+    db.Article.findOne({ id: req.params.id })
     // populates all notes associated with the article. 
     .populate("note").then(function(dbArticle) {
-        
+
         res.json(dbArticle);
     }).catch(function(err){
         res.json(err);
