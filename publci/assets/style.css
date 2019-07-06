@@ -1,0 +1,10 @@
+footer {
+    position: fixed;
+    bottom: 0px;
+    background-color: black;
+
+}
+body {
+    background-image: url('/publci/assets/images/skatebg.webp')
+    
+}

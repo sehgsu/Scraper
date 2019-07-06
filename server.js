@@ -16,9 +16,6 @@ var PORT = process.env.PORT || 4717;
 
 var app = express();
 
-// initializing express router
-var router = express.Router();
-
 // logging requests with morgan logger
 app.use(logger("dev"));
 
@@ -27,11 +24,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // making public static folder
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/publci"));
 
 // connects to hbs
-app.engine('handlebars', exphbs({ defaultLayout: "main" }));
-app.set('view engine', 'handlebars');
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
 
 
 // use deployed DB, otherwise use local DB
@@ -40,7 +37,67 @@ var MONGODB_URI = process.env.MONGO_URI || "mongodb://localhost/mongoHeadlines";
 // connecting to mongoose 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true});
 
-app.use(router);
+// routes
+
+// renders home page
+app.get("/", function(req, res) {
+    res.render("home");
+})
+
+// renders saved articles
+app.get("/saved", function(req, res) {
+    res.render("saved");
+});
 
 // starting server
 app.listen(PORT, () => console.log("Listening on port: %s Visit http://localhost:%s/", PORT, PORT))
+
+// get route scraping thrasher magazine
+app.get("/scrape", function(req, res) {
+    // grab the body of html with axios
+    axios.get("https://www.thrashermagazine.com/").then(function(response) {
+        // load cheerior and save as $ for shorthand selector
+        var $ = cheerio.load(response.data);
+
+        $("article h2").each(function(i, element) {
+            var result = {};
+
+                // Adds the text and href of each link and saves and proporties of result object.
+            result.title = $(this)
+                .children("a")
+                .text();
+            result.link = $(this)
+                .children("a")
+                .attr("href");
+        
+            // Create a new Article using the 'result' object built from scraping
+            db.Article.create(result).then(function(dbArticle) {
+                console.log(dbArticle);
+            }).catch(function(err) {
+                console.log(err);
+            })
+        });
+        res.send("Scrape complete");
+    })
+});
+
+app.get("/articles", function(req, res) {
+    db.Article.find({}).then(function(dbArticle) {
+        res.json(dbArticle);
+    }).catch(function(err) {
+        res.json(err);
+    })
+})
+
+// Route for grabbing specific Article by id and populate it with the corresponding note
+app.get("/articles/:id", function(req, res) {
+    // using id passed by the id parameter prepare a query that finds the matching one in our db.
+    db.Article.findOne({ _id: req.params.id })
+    // populates all notes associated with the article. 
+    .populate("note").then(function(dbArticle) {
+        
+        res.json(dbArticle);
+    }).catch(function(err){
+        res.json(err);
+    })
+})
