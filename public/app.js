@@ -13,6 +13,7 @@ $(document).on("click", "#scrapeBtn", function () {
       url: "/scrape"
     })
       .then(function (data) {
+        console.log("testingtesting")
         console.log(data);
       });
   });

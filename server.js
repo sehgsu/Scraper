@@ -59,20 +59,20 @@ app.get("/scrape", function(req, res) {
         // load cheerior and save as $ for shorthand selector
         var $ = cheerio.load(response.data);
 
-        $("article h2").each(function(i, element) {
+        $("article js_post_item").each(function(i, element) {
             var result = {};
 
                 // Adds the text href, image, and authors of each link and saves and proporties of result object.
             result.title = $(this)
-                .children("a")
+                .children("h1")
                 .text();
             result.link = $(this)
                 .children("a")
                 .attr("href");
             result.image = $(this)
-            .children("a")
-            .children("img")
-            .attr("src");
+                .children("a")
+                .children("img")
+                .attr("srcset");
         
             // Create a new Article using the 'result' object built from scraping
             db.Article.create(result).then(function(dbArticle) {
