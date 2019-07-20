@@ -11,6 +11,7 @@ var cheerio = require("cheerio");
 // require models
 var db = require("./models");
 
+
 // setting port
 var PORT = process.env.PORT || 4717;
 
@@ -24,15 +25,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // making public static folder
-app.use(express.static(__dirname + "/public"));
+app.use(express.static("public"));
 
 // connects to hbs
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 
-
 // use deployed DB, otherwise use local DB
-var MONGODB_URI = process.env.MONGO_URI || "mongodb://localhost/mongoHeadlines";
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
 
 // connecting to mongoose 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true});
@@ -64,7 +64,7 @@ app.get("/scrape", function(req, res) {
 
                 // Adds the text href, image, and authors of each link and saves and proporties of result object.
             result.title = $(this)
-                .children("h1")
+                .find("h1")
                 .text();
             result.link = $(this)
                 .children("a")

@@ -15,6 +15,7 @@ $(document).on("click", "#scrapeBtn", function () {
       .then(function (data) {
         console.log("testingtesting")
         console.log(data);
+        location.reload();
       });
   });
 
